@@ -3,7 +3,7 @@
  * @Author: anchen
  * @Date:   2019-04-18 20:35:09
  * @Last Modified by:   anchen
- * @Last Modified time: 2019-04-18 22:45:29
+ * @Last Modified time: 2019-04-18 22:53:04
  */
 
 function WebSocket($address,$port){
@@ -89,6 +89,7 @@ function run(){
      
 }
 
-
+$server = WebSocket("127.0.0.1", 88);
+run()
 
 ?>
