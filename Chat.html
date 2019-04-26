@@ -12,9 +12,25 @@
 		<script>
           var isLog = 0;
           var username = "";
-          var time = (new Date()).getTime();
+          var password = "";
+          window.onload = function(){
+            username = window.sessionStorage.getItem("username");
+            password = window.sessionStorage.getItem("password");
+            isLog = window.sessionStorage.getItem("isLog");
+            if(isLog)
+              setInterval("rec()", 1000);
+            document.getElementById("text").innerHTML = window.sessionStorage.getItem("inner");
+          }
+          function isBottom(){
+          	var scroll = document.getElementById("text");
+            if((scroll.scrollTop+scroll.clientHeight)==scroll.scrollHeight)
+              return true;
+            else
+              return false;
+          }
           function login(){
           	username = document.getElementById("username").value;
+			password = document.getElementById("password").value;
             var xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function(){
                 if(xmlhttp.readyState==4&&xmlhttp.status==200){
@@ -23,27 +39,37 @@
                     isLog = 1;
                     alert(xmlhttp.responseText);
           			setInterval("rec()", 1000);
+                    window.sessionStorage.setItem("username",username);
+                    window.sessionStorage.setItem("password",password);
+                    window.sessionStorage.setItem("isLog",isLog);
                   }
                   else
                     alert(xmlhttp.responseText);
                 }
             }
-			username = document.getElementById("username").value;
-			var password = document.getElementById("password").value;
             xmlhttp.open("POST", "./server.php", true);
 			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xmlhttp.send("type=login&username="+username+"&password="+password+"&time="+time);
+            xmlhttp.send("type=login&username="+username+"&password="+password);
           }
           	function rec(){
           	var xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function(){
                 if(xmlhttp.readyState==4&&xmlhttp.status==200){
+                  var go = false;
+                  	if(isBottom()){
+                    	go = true;
+                    }
                     document.getElementById("text").innerHTML += xmlhttp.responseText;
+                    window.sessionStorage.setItem("inner",document.getElementById("text").innerHTML);
+                  if(go){
+                    var scroll = document.getElementById("text");
+                    scroll.scrollTop = scroll.scrollHeight - scroll.clientHeight;
+                  }
                 }
             }
             xmlhttp.open("POST", "./server.php", true);
 			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xmlhttp.send("type=rec&username="+username+"&time="+time);
+            xmlhttp.send("type=rec&username="+username);
             time = (new Date()).getTime();
           	}
 			function send(){
@@ -59,10 +85,8 @@
             }
             xmlhttp.open("POST", "./server.php", true);
 			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xmlhttp.send("type=send&username="+username+"&text="+document.getElementById("info").value+"&time="+(new Date()).getTime());
-			}
-			function s(){
-				alert(document.getElementById("info").innerHTML)
+            xmlhttp.send("type=send&username="+username+"&text="+document.getElementById("info").value);
+            document.getElementById("info").value = "";
 			}
 		</script>
 	
@@ -70,21 +94,11 @@
 	<body class="container">
 		<div class="card shadow flex-column flex-fill align-items-center " style="text-align: center;">
 			<div class="card-body" style="border:solid grey 2px;border-radius:5px;margin: 25px; width: 80%;height: 400px;" readonly="readonly">
-				<div style='float:right;margin-left: 100%;'>ZGG:</div><pre class='bg-primary text-white' wrap="hard" style='text-align: left; width:60%;padding: 15px;float:right'>a
-				a
-				a
-				a
-				a
-				a
-				a
-				a
-				a
-				</pre>
-				
+          		<p id="text" style="overflow-y:auto;width: 100%;height: 100%;"></p>
 			</div>
 			<div class="card-body d-flex" style="width: 80%;">
-				<textarea id="info" style=" margin: 0; width: 100%;height: 150px; padding: ;">a</textarea>
-				<button class="btn btn-primary btn-lg"onclick="s()">发送</button>
+				<textarea id="info" style="margin: 0; width: 100%;height: 150px;overflow: visible;"></textarea>
+				<button class="btn btn-primary btn-lg"onclick="send()">发送</button>
 			</div>
 		</div><br/>
 		<form class="form-group" >
@@ -102,8 +116,5 @@
               	</li>
 			</ul>
 		</form>
-		<div class="chatbox rounded-lg text-white" style="padding: 15px;background-color: #00CCFF;">
-		</div>
 	</body>
 </html>
-
